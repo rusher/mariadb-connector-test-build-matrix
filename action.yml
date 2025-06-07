@@ -1,0 +1,29 @@
+name: mariadb-test-build-matrix
+
+description: ''
+
+branding:
+  icon: 'database'
+  color: 'red'
+
+inputs:
+  additional-matrix:
+    description: 'additional matrix'
+    default: ''
+    required: false
+
+outputs:
+  final-matrix:
+    description: 'final matrix'
+    value: ${{ steps.build.outputs.final-matrix }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: combine
+      id: build
+      shell: bash
+      run: "${{ github.action_path }}/build.sh"
+      env:
+        ADDITIONAL_MATRIX: ${{ inputs.additional-matrix }}
+        GITHUB_EVENT_NAME: ${{ github.event_name }}
