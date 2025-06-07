@@ -25,9 +25,5 @@ else
     FILTERED_MATRIX="$FINAL_MATRIX"
 fi
 
-# Display the final matrix to console
-echo "Final filtered matrix:"
-echo "$FILTERED_MATRIX" | jq .
-
 # Output the final matrix (compact JSON)
 echo "final-matrix=$(echo "$FILTERED_MATRIX" | jq -c .)" >> "$GITHUB_OUTPUT"
