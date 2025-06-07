@@ -6,7 +6,9 @@ BASE_MATRIX=$(cat "$GITHUB_ACTION_PATH/test-matrix.json")
 # Check if ADDITIONAL_MATRIX is provided and not empty
 if [ -n "${ADDITIONAL_MATRIX}" ]; then
     # Combine the matrices by merging the include arrays
-    FINAL_MATRIX=$(echo "$BASE_MATRIX" "$ADDITIONAL_MATRIX" | jq -s 'add')
+    # BASE_MATRIX has format: {"include": [...]}
+    # ADDITIONAL_MATRIX should be an array: [...]
+    FINAL_MATRIX=$(echo "$BASE_MATRIX" "$ADDITIONAL_MATRIX" | jq -s '{include: (.[0].include + .[1])}')
 else
     # Use the base matrix as-is
     FINAL_MATRIX="$BASE_MATRIX"
