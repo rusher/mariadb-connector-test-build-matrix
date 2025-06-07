@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "$RUNNER_OS" == "Windows" ]; then
+  echo "127.0.0.1 mariadb.example.com" >> /c/Windows/System32/drivers/etc/hosts
+else
+  echo "127.0.0.1 mariadb.example.com" | sudo tee -a /etc/hosts
+fi
+
 # Load the base test matrix
 BASE_MATRIX=$(cat "$GITHUB_ACTION_PATH/test-matrix.json")
 
