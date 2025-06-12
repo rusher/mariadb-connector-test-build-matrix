@@ -18,7 +18,7 @@ fi
 if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
     # Filter out enterprise db-type entries for pull requests
     FILTERED_MATRIX=$(echo "$FINAL_MATRIX" | jq '{
-        include: [.[] | select(.["db-type"] != "enterprise")]
+        include: [.include[] | select(.["db-type"] != "enterprise")]
     }')
 else
     # Use the full matrix for other events
