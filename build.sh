@@ -25,8 +25,48 @@ else
     FILTERED_MATRIX="$FINAL_MATRIX"
 fi
 
-echo "final-matrix=$(echo "$FILTERED_MATRIX" | jq -c '.include |= sort_by([
-  (.name | capture("^(?<product>\\\\S+)\\\\s+(?<major>\\\\d+)\\\\.(?<minor>\\\\d+)") | .major | tonumber),
-  (.name | capture("^(?<product>\\\\S+)\\\\s+(?<major>\\\\d+)\\\\.(?<minor>\\\\d+)") | .minor | tonumber),
-  .name
-])')" >> "$GITHUB_OUTPUT"
+# Debug version - let's see what's actually happening
+echo "=== DEBUGGING SORT PROCESS ==="
+
+echo "1. Original data (first few items):"
+echo "$FILTERED_MATRIX" | jq -r '.include[0:5][].name'
+
+echo -e "\n2. Testing regex capture on each name:"
+echo "$FILTERED_MATRIX" | jq -r '.include[].name | . as $name | try (capture("^(?<product>\\S+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)") | "✓ \($name) -> major:\(.major) minor:\(.minor)") catch "✗ \($name) -> NO MATCH"'
+
+echo -e "\n3. Testing version conversion:"
+echo "$FILTERED_MATRIX" | jq -c '.include[].name | . as $name | try (capture("^(?<product>\\S+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)") | {name: $name, major: (.major | tonumber), minor: (.minor | tonumber)}) catch {name: $name, error: "no match"}'
+
+echo -e "\n4. Testing full sort key generation:"
+echo "$FILTERED_MATRIX" | jq -c '.include[] | {
+  name: .name,
+  sort_key: (if (.name | test("^\\S+\\s+\\d+\\.\\d+")) then
+    (.name | capture("^(?<product>\\S+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)") |
+     [(.major | tonumber), (.minor | tonumber), .name])
+  else
+    [999, 999, .name]
+  end)
+}'
+
+echo -e "\n5. Applying the sort and showing result:"
+echo "$FILTERED_MATRIX" | jq -c '
+.include |= sort_by(
+  if (.name | test("^\\S+\\s+\\d+\\.\\d+")) then
+    (.name | capture("^(?<product>\\S+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)") |
+     [(.major | tonumber), (.minor | tonumber), .name])
+  else
+    [999, 999, .name]
+  end
+) | .include[].name'
+
+echo -e "\n6. Final result assigned to output:"
+
+
+echo "final-matrix=$(echo "$FILTERED_MATRIX" | jq -c '.include |= sort_by(
+  if (.name | test("^\\\\S+\\\\s+\\\\d+\\\\.\\\\d+")) then
+    (.name | capture("^(?<product>\\\\S+)\\\\s+(?<major>\\\\d+)\\\\.(?<minor>\\\\d+)") |
+     [(.major | tonumber), (.minor | tonumber), .name])
+  else
+    [999, 999, .name]
+  end
+)')" >> "$GITHUB_OUTPUT"
