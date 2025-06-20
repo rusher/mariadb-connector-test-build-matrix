@@ -10,8 +10,7 @@
       "name": "MariaDB 11.4 (local) - macos",
       "os": "macos-latest",
       "db-type": "community",
-      "db-tag": "11.4",
-      "continue-on-error": true
+      "db-tag": "11.4"
     },
     {
       "name": "MariaDB 10.5",
