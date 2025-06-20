@@ -25,12 +25,17 @@ else
     FILTERED_MATRIX="$FINAL_MATRIX"
 fi
 
-echo "$FILTERED_MATRIX" | jq '.include[0].name | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)\\s*(?<rest>.*)?$")'
+# Test the capture first
+echo "$FILTERED_MATRIX" | jq '.include[].name | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)")'
+
+# Test the version parsing
+echo "$FILTERED_MATRIX" | jq '.include[].name | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)") | .version | split(".") | map(tonumber)'
+
+# Test the full sort
+echo "$FILTERED_MATRIX" | jq '.include | sort_by(.name | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)") | .version | split(".") | map(tonumber))'
+
 # Output the final matrix (compact JSON)
 echo "final-matrix=$(echo "$FILTERED_MATRIX" | jq -c '.include |= sort_by(
-  (
-    .name
-    | capture("^(?<product>[^0-9]+?)\\\\s*(?<version>\\\\d+\\\\.\\\\d+)(?<rest>.*)?$")
-    | {product: (.product | rtrimstr(" ")), version: (.version | split(".") | map(tonumber)), rest}
-  )
+  .name | capture("^(?<product>\\\\S+)\\\\s+(?<version>\\\\d+\\\\.\\\\d+)\\\\s*(?<rest>.*)?$") |
+  [.product, (.version | split(".") | map(tonumber)), .rest]
 )')" >> "$GITHUB_OUTPUT"
