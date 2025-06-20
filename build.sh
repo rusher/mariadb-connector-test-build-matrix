@@ -25,8 +25,21 @@ else
     FILTERED_MATRIX="$FINAL_MATRIX"
 fi
 
+# Test 1: Check if the regex capture is working
+echo "$FILTERED_MATRIX" | jq -r '.include[].name | select(test("MariaDB")) | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)") | "\(.product) \(.version)"'
+
+# Test 2: Check if version splitting is working
+echo "$FILTERED_MATRIX" | jq -r '.include[].name | select(test("MariaDB")) | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)") | .version | split(".") | join(",")'
+
+# Test 3: Check if tonumber is working
+echo "$FILTERED_MATRIX" | jq -c '.include[].name | select(test("MariaDB")) | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)") | .version | split(".") | map(tonumber)'
+
+# Test 4: Check the full sort key
+echo "$FILTERED_MATRIX" | jq -c '.include[] | select(.name | test("MariaDB")) | [(.name | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)") | .version | split(".") | map(tonumber)), .name]'
+
 echo "final-matrix=$(echo "$FILTERED_MATRIX" | jq -c '.include |= sort_by([
-  (.name | capture("^(?<product>\\\\S+)\\\\s+(?<version>\\\\d+\\\\.\\\\d+)") | .product),
-  (.name | capture("^(?<product>\\\\S+)\\\\s+(?<version>\\\\d+\\\\.\\\\d+)") | .version | split(".") | map(tonumber)),
+  (.name | capture("^(?<product>\\\\S+)\\\\s+(?<version>\\\\d+\\\\.\\\\d+)"; "g") // {} | .product // .name),
+  (.name | capture("^(?<product>\\\\S+)\\\\s+(?<major>\\\\d+)\\\\.(?<minor>\\\\d+)"; "g") // {} | (.major // "0") | tonumber),
+  (.name | capture("^(?<product>\\\\S+)\\\\s+(?<major>\\\\d+)\\\\.(?<minor>\\\\d+)"; "g") // {} | (.minor // "0") | tonumber),
   .name
 ])')" >> "$GITHUB_OUTPUT"
