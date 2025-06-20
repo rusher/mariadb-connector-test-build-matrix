@@ -25,11 +25,12 @@ else
     FILTERED_MATRIX="$FINAL_MATRIX"
 fi
 
+echo "$FILTERED_MATRIX" | jq '.include[0].name | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)\\s*(?<rest>.*)?$")'
 # Output the final matrix (compact JSON)
 echo "final-matrix=$(echo "$FILTERED_MATRIX" | jq -c '.include |= sort_by(
   (
     .name
-    | capture("^(?<product>\\\\S+)\\\\s+(?<version>\\\\d+\\\\.\\\\d+)\\\\s*(?<rest>.*)?$")
-    | {product, version: (.version | split(".") | map(tonumber)), rest}
+    | capture("^(?<product>[^0-9]+?)\\\\s*(?<version>\\\\d+\\\\.\\\\d+)(?<rest>.*)?$")
+    | {product: (.product | rtrimstr(" ")), version: (.version | split(".") | map(tonumber)), rest}
   )
 )')" >> "$GITHUB_OUTPUT"
