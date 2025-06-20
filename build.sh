@@ -26,4 +26,10 @@ else
 fi
 
 # Output the final matrix (compact JSON)
-echo "final-matrix=$(echo "$FILTERED_MATRIX" | jq -c '.include |= sort_by(.name)')" >> "$GITHUB_OUTPUT"
+echo "final-matrix=$(echo "$FILTERED_MATRIX" | jq -c '.include |= sort_by(
+  (
+    .name
+    | capture("^(?<product>\\S+)\\s+(?<version>\\d+\\.\\d+)\\s*(?<rest>.*)?")
+    | {product, version: ( .version | split(\".\") | map(tonumber) ), rest}
+  )
+)')" >> "$GITHUB_OUTPUT"
