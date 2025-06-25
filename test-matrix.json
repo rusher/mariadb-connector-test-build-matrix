@@ -13,12 +13,6 @@
       "db-tag": "11.4"
     },
     {
-      "name": "MariaDB 10.5",
-      "os": "ubuntu-latest",
-      "db-type": "community",
-      "db-tag": "10.5"
-    },
-    {
       "name": "MariaDB 10.6",
       "os": "ubuntu-latest",
       "db-type": "community",
