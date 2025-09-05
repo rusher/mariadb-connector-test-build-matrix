@@ -32,23 +32,22 @@
       "db-tag": "11.4"
     },
     {
-      "name": "MariaDB 11.8 dev",
+      "name": "MariaDB 11.8",
       "os": "ubuntu-latest",
-      "db-type": "dev",
+      "db-type": "community",
       "db-tag": "11.8"
     },
     {
-      "name": "MariaDB 12.0 dev",
+      "name": "MariaDB 12.0",
       "os": "ubuntu-latest",
-      "db-type": "dev",
+      "db-type": "community",
       "db-tag": "12.0"
     },
     {
-      "name": "MariaDB 10.5 ES",
+      "name": "MariaDB 12.1 dev",
       "os": "ubuntu-latest",
-      "db-type": "enterprise",
-      "db-tag": "10.5",
-      "run-condition": "${{ github.event_name == 'pull_request' }}"
+      "db-type": "dev",
+      "db-tag": "12.1"
     },
     {
       "name": "MariaDB 10.6 ES",
