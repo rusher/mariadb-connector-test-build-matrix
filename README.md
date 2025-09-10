@@ -1,7 +1,9 @@
-# MariaDB matrix builder
+# MariaDB connector continuous integration matrix builder
 
 to change :
 ```
 git tag -a -m "commit description" v1.xx
 git push --follow-tags
 ```
+
+other related project : https://github.com/mariadb-corporation/connector-ci-setup 
