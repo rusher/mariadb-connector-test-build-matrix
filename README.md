@@ -1,5 +1,8 @@
 # MariaDB connector continuous integration matrix builder
 
+This defines the base matrix for connectors. 
+The main files is [test-matrix.json](./test-matrix.json)
+
 other related project : https://github.com/mariadb-corporation/connector-ci-setup
 
 matrix possibility:
